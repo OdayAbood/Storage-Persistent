@@ -1,0 +1,44 @@
+#The emptyDir volume is a temporary storage that is created when a pod 
+# is assigned to a node and exists as long as that pod is running on 
+# that node.
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: empty-dir-4learning
+  labels:
+    name: empty-dir-4learning
+spec:
+  containers:
+  - name: empty-dir-4learning
+    image: busybox:1.36.1
+    # This is for specifying the command to be executed when the container starts.
+    command: 
+      # sh means we are using the shell to execute the command.
+      # c means we are passing a command to the shell to execute.
+      # The command will create a file named hello.txt in the /temp-storage directory,
+      # which is the mount point for the emptyDir volume.
+      #> means we are redirecting the output of the echo command to the hello.txt file.
+      - sh 
+      - -c 
+      - 'sleep 3600'
+    # This is for Specifying the recource limits for the container.f
+    resources:
+      limits:
+        memory: '128Mi'
+        cpu: '500m'
+    # To mount the emptyDir volume to the container, 
+    # we need to specify the volumeMounts field in the container spec.
+    volumeMounts:
+      # This must match the name of the volume defined in the volumes field.
+    - name: temp-storage
+      # Here we specify the path where the emptyDir volume, 
+      # will be mounted inside the container.
+      # It could be any name like /temp-storage or /data.  
+      mountPath: /temp-storage
+  # This is for creating a temporary storage for the pod. 
+  # It will be deleted when the pod is deleted.
+  volumes:
+  - name: temp-storage
+    emptyDir: {}
+      # medium: Memory  # Optional: for using memory-backed storage
+      # sizeLimit: 1Gi  # Optional: for limiting the size
