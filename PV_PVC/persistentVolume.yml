@@ -1,0 +1,62 @@
+#The data in the PersistentVolume will be preserved even after the pod is deleted. This is because the PersistentVolume is a separate resource from the pod, and it is not tied to the lifecycle of the pod. When a pod is deleted, the PersistentVolume remains intact and can be reused by other pods that request it.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: volume-4learning
+spec:
+  capacity:
+    storage: 1Gi
+  #The volumeMode field specifies the type of volume. In this case, it is set to Filesystem, which means that the volume will be mounted as a filesystem.
+  volumeMode: Filesystem
+  #The accessModes field specifies the access mode for the volume. In this case, it is set to ReadWriteOnce, which means that the volume can be mounted as read-write by a single node.
+  accessModes:
+    - ReadWriteOnce
+  #Here we are specifying the persistentVolumeReclaimPolicy, which determines what happens to the volume when it is released from its claim. In this case, it is set to Recycle, which means that the volume will be scrubbed and made available for reuse.
+  #The Retain policy is used to retain the volume after it is released from its claim, while the Delete policy is used to delete the volume when it is released from its claim.
+  #If we do not specify the persistentVolumeReclaimPolicy, it will default to Retain.
+  persistentVolumeReclaimPolicy: Retain
+  #The storageClassName field specifies the name of the StorageClass that is associated with this PersistentVolume. In this case, it is set to slow, which means that the volume will be provisioned using the slow StorageClass.
+  storageClassName: local-storage-4learning
+  #The mountOptions field specifies the mount options for the volume. In this case, it is set to hard and nfsvers=4.1, which means that the volume will be mounted using the NFS protocol version 4.1 with hard mounting.
+  #The hard option means that the client will retry the mount operation indefinitely until it succeeds, while the nfsvers=4.1 option specifies the version of the NFS protocol to use for mounting the volume.
+  #The other mount options that can be used are soft, intr, nolock, noexec, nosuid, and rw. The soft option means that the client will return an error if the mount operation fails, while the intr option allows the client to interrupt the mount operation. The nolock option disables file locking on the volume, while the noexec option prevents execution of binaries on the volume. The nosuid option prevents set-user-identifier or set-group-identifier bits from taking effect on the volume, while the rw option allows read-write access to the volume.
+  ######
+  # mountOptions:
+  #   - hard
+  #   - nfsvers=4.1
+  ######
+  # The nfs field specifies the NFS server and path for the volume. In this case, it is set to /tmp on the server with IP address
+  #####
+  # nfs:
+  #   path: /tmp
+  #   server: 172.17.0.2
+  #####
+  #The path field specifies the path on the node where the volume is located. In this case, it is set to /mnt/disks/vol1, which means that the volume is located on a disk mounted at /mnt/disks/vol1 on the node.
+  #The Path you determined it should be a directory on the node that is accessible to the kubelet. The kubelet will use this path to mount the volume into the pod.
+  #And if the path does not exist, the kubelet will create it for you. But if the path is not accessible to the kubelet, the pod will fail to start.
+  #If the pod failed to start, you can create the directory on the node manually and then restart the pod. The pod will then be able to mount the volume successfully.
+  #To create the directory on the node manually, you can use the following command:
+  #First type name of the node where the pod is scheduled to run, you can use the following command:
+  #kubectl get pod <pod-name> -o wide
+  #Then ssh into the node using the following command:
+  #ssh <node-name>
+  #sudo mkdir -p /mnt/disks/vol1
+  local:
+    path: /mnt/disks/vol1
+  #The nodeAffinity field specifies the node affinity rules for the volume. In this case, it is set to required, which means that the volume can only be mounted on nodes that match the specified node selector terms.
+  #If the pod does not match the node affinity rules, it will not be scheduled to run on that node, and the volume will not be mounted.
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      #The matchExpressions field specifies the node selector expressions for the volume. In this case, it is set to match nodes that have the kubernetes.io/hostname label with a value of minikube. This means that the volume can only be mounted on nodes that have the hostname minikube.
+      - matchExpressions:
+      #The key field specifies the label key to match, which is kubernetes.io/hostname in this case. The operator field specifies the operator to use for matching, which is In in this case. The values field specifies the list of values to match against, which is minikube in this case.
+        - key: kubernetes.io/hostname
+        #The operator field specifies the operator to use for matching, which is In in this case. The values field specifies the list of values to match against, which is minikube in this case.
+          operator: In
+          #The values field specifies the list of values to match against, which is minikube in this case. This means that the volume can only be mounted on nodes that have the hostname minikube.
+          #You could also use the NotIn operator to specify nodes that should not be used for mounting the volume, or the Exists operator to specify nodes that have a specific label key, regardless of its value.
+          #Also you could have many nodes in the values list, and the volume will be able to be mounted on any of those nodes that match the node affinity rules.
+          values:
+          - minikube
+

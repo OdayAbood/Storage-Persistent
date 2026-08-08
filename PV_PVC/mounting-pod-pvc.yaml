@@ -1,0 +1,36 @@
+#In this file I am creating a Pod to mount the PersistentVolumeClaim that we created in the previous step. 
+#The pod will use the volumeClaimTemplate to create a PersistentVolumeClaim and mount it to the pod.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: local-pod-4learning-mount-to-pvc
+  labels:
+    app: local-pod-4learning-mount-to-pvc
+spec:
+  containers:
+  - name: local-pod-4learning-mount-to-pvc
+    image: busybox:1.36.1
+    command: 
+      - sh 
+      - -c 
+      - 'sleep 3600'
+    resources:
+      limits:
+        cpu: 200m
+        memory: 500Mi
+      requests:
+        cpu: 100m
+        memory: 200Mi
+    #The volumeMounts field specifies the volumes that will be mounted to the container. In this case, we are mounting the PersistentVolumeClaim that we created in the previous step.
+    volumeMounts:
+    - name: local-volume-4learning
+      #The mountPaht should match the path that we specified in the PersistentVolume. In this case, it is set to /mnt/disks/vol1, which means that the volume will be mounted to the container at /mnt/disks/vol1.
+      mountPath: /mnt/disks/vol1
+    #The volumes field specifies the volumes that will be mounted to the pod. In this case, we are mounting the PersistentVolumeClaim that we created in the previous step.
+  volumes:
+  #The name field specifies the name of the volume, and it must match the name of the volumeMounts filed in the container spec. In this case, it is set to local-volume-4learning, which means that the volume will be mounted to the pod with the name local-volume-4learning.
+  #It is not necessary to match the name of the PersistentVolumeClaim or PersistentVolume, but it is a good practice to use the same name for clarity.
+  - name: local-volume-4learning
+  #Here we are specifying the persistentVolumeClaim field, which specifies the PersistentVolumeClaim that we want to mount to the pod. In this case, it is set to volume-claim-4learning, which means that the pod will mount the PersistentVolumeClaim with the name volume-claim-4learning.
+    persistentVolumeClaim:
+      claimName: volume-claim-4learning
