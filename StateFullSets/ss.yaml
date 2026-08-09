@@ -33,6 +33,7 @@ spec:
           #But in the case of StatefulSets, the mountPath can be different for each replica, as the volumeClaimTemplates will create a unique PVC for each replica.
           #The mountPath can be different for each replica, as the volumeClaimTemplates will create a unique PVC for each replica, and the mountPath can be different for each PVC.
           mountPath: /mnt/disks/vol1/
+  # The volumeClaimTemplates will create a unique PVC for each replica, and the mountPath can be different for each PVC.
   volumeClaimTemplates:
   - metadata:
       name: local-volume-4learning-with-statefulset
